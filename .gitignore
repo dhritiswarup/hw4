@@ -1,0 +1,33 @@
+# ---- secrets: never commit the real key ----
+.env
+.env.*
+!.env.example
+
+# ---- local-only data pack (course data: database + product images) ----
+data/
+data.zip
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- Python ----
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# ---- Node / Vite ----
+node_modules/
+frontend/dist/
+
+# ---- audit trail temp / set-aside files (audit_trail.json itself IS committed) ----
+output/*.tmp
+output/audit_trail.json.tmp
+output/audit_trail.unreadable-*.json
+
+# ---- editor / OS ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

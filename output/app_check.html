@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Campus Customs: Live App Check (Problem 11)</title>
+  <style>
+    :root { --yale: #00356b; --blue: #286dc0; --line: #dfe6ee; --soft: #f5f8fc; --ink: #16202c; --muted: #5b6878; --ok: #1f7a4d; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Source Sans 3", "Segoe UI", Calibri, Arial, sans-serif; color: var(--ink); background: #fff; line-height: 1.55; }
+    header { background: var(--yale); color: #fff; padding: 2.2rem 1.5rem 2rem; }
+    header .wrap, main { max-width: 1100px; margin: 0 auto; }
+    h1, h2 { font-family: "EB Garamond", Georgia, "Times New Roman", serif; font-weight: 600; margin: 0 0 .4rem; }
+    h1 { font-size: 2.3rem; }
+    header p { margin: .2rem 0 0; opacity: .88; }
+    main { padding: 1.5rem 1.5rem 4rem; }
+    .meta { font-size: .9rem; color: var(--muted); }
+    table.summary { width: 100%; border-collapse: collapse; margin: 1.2rem 0 2.5rem; font-size: .95rem; }
+    table.summary th, table.summary td { text-align: left; padding: .6rem .75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    table.summary th { background: var(--soft); color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
+    .pass { color: var(--ok); font-weight: 700; white-space: nowrap; }
+    section.check { border-top: 3px solid var(--yale); padding-top: 1.2rem; margin-top: 2.8rem; }
+    section.check h2 { color: var(--yale); font-size: 1.8rem; }
+    .num { display: inline-block; min-width: 2rem; color: var(--blue); }
+    figure { margin: 1.4rem 0 0; }
+    figure a { display: block; }
+    figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 6px 20px rgba(0,29,61,.08); }
+    figure img.narrow { max-width: 620px; }
+    figcaption { margin-top: .6rem; font-size: 1rem; }
+    figcaption strong { color: var(--yale); }
+    .evidence { margin-top: .5rem; font-size: .88rem; color: var(--muted); background: var(--soft); border-left: 3px solid var(--blue); padding: .5rem .75rem; border-radius: 0 6px 6px 0; }
+    code { font-family: Consolas, "Courier New", monospace; font-size: .88em; background: #eef2f7; padding: .05rem .3rem; border-radius: 4px; }
+    footer { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem 3rem; font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Campus Customs: Live App Check</h1>
+      <p>Problem 11: Site testing (app check) · Screenshots of the running site (React + Vite front end, FastAPI + PydanticAI backend)</p>
+    </div>
+  </header>
+
+  <main>
+    <p class="meta">
+      Tested on <strong>2026-09-26</strong> against the live app at <code>http://localhost:5173</code> (backend
+      <code>uvicorn main:app --reload --port 8000</code>, agent model <code>gpt-5.6-luna</code> via Portkey). Screenshots were
+      taken automatically with Playwright driving Microsoft Edge (1440×900, guest session). Every number in the captions
+      was cross-checked with SQL against <code>data/campus_customs.db</code>. Click any screenshot to open it full size.
+    </p>
+
+    <table class="summary">
+      <thead><tr><th>#</th><th>Check</th><th>What was verified</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Chat checks an item's inventory level</td><td>Chat said "only 2 left" in XL at $68.00. The DB has <code>XL = 2</code> and <code>price = 68.0</code>.</td><td class="pass">✔ Pass</td></tr>
+        <tr><td>2</td><td>Dynamic search-result cards after a category question</td><td>"What hoodies do you have?" put 27 cards on the Shop page. The DB has 27 hoodies. Clicking a card opened its detail page.</td><td class="pass">✔ Pass</td></tr>
+        <tr><td>3</td><td>Problem 9 usability feature: "My size" filter + sort</td><td>XL filter showed "77 of 102 items". The DB has 77 products in stock in XL. Prices sorted low→high, and the size was remembered after a reload.</td><td class="pass">✔ Pass</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============================ CHECK 1 ============================ -->
+    <section class="check" id="inventory">
+      <h2><span class="num">1.</span>Chat checks the inventory level of an item</h2>
+
+      <figure>
+        <a href="app_check_images/inventory.png" target="_blank"><img src="app_check_images/inventory.png" alt="Chat on the Fencing Left Chest Hoodie page answering that XL is in stock with only 2 left at $68.00" /></a>
+        <figcaption>
+          <strong>Proves:</strong> on the Fencing Left Chest Hoodie page, the shopper asked "Is this in stock in XL? How many are
+          left and how much is it?". The chat answered <em>"in stock in XL, with only 2 left … $68.00"</em>, using the page
+          context for "this" and its live <code>check_stock</code> / <code>get_product_info</code> database tools, not a guess.
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a href="app_check_images/inventory_stock_table.png" target="_blank"><img class="narrow" src="app_check_images/inventory_stock_table.png" alt="Product details showing $68.00 and a stock table with XL = 2 and XS, L, XXL sold out" /></a>
+        <figcaption>
+          <strong>Proves the answer is honest:</strong> the same product's stock table, read from the database, shows
+          <strong>XL = 2</strong> and <strong>$68.00</strong>, matching the chat exactly. It also shows XS, L and XXL as sold out.
+        </figcaption>
+        <div class="evidence">DB check: <code>SELECT price FROM catalogue WHERE product_id='fencing-left-chest-hoodie'</code> → 68.0 ·
+          <code>inventory</code> → XS 0, S 12, M 15, L 0, <strong>XL 2</strong>, XXL 0.</div>
+      </figure>
+    </section>
+
+    <!-- ============================ CHECK 2 ============================ -->
+    <section class="check" id="search">
+      <h2><span class="num">2.</span>Dynamic search-result cards after a category question</h2>
+
+      <figure>
+        <a href="app_check_images/search_results_chat.png" target="_blank"><img src="app_check_images/search_results_chat.png" alt="After asking what hoodies do you have, the site switched to the Shop page with a Hoodies results banner and the chat reply beside it" /></a>
+        <figcaption>
+          <strong>Proves:</strong> the shopper asked "What hoodies do you have?" on the Home page. The agent searched the catalogue,
+          and the site moved to the Shop page and filled it with a <em>"Fetched by the CC assistant: Hoodies · 27 items"</em>
+          result set, while the chat stayed open with a short reply and top picks.
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a href="app_check_images/search_results_cards.png" target="_blank"><img src="app_check_images/search_results_cards.png" alt="Shop page grid of hoodie product cards with image, name, price and sizes" /></a>
+        <figcaption>
+          <strong>Proves:</strong> with the chat closed, the dynamically loaded results are regular product cards (image, name,
+          price, sizes, short info). All <strong>27</strong> hoodies appear, which is the database's full hoodie count, not just the
+          few the model mentioned.
+        </figcaption>
+      </figure>
+
+      <figure>
+        <a href="app_check_images/search_results_detail.png" target="_blank"><img src="app_check_images/search_results_detail.png" alt="Detail page for Champion Reverse Weave Hoodie 1 opened from a chat result card, with back link to Hoodies" /></a>
+        <figcaption>
+          <strong>Proves:</strong> clicking a chat-loaded card still opens the Problem 3 single-item page (large image plus full
+          description, price and per-size stock), with a <em>"← Back to "Hoodies""</em> link that returns to the results.
+        </figcaption>
+        <div class="evidence">DB check: 27 catalogue rows have a hoodie <code>garment_type</code>, and the page rendered 27 cards.
+          The clicked card <code>/products/champion-reverse-weave-hoodie-1</code> opened "Champion Reverse Weave Hoodie 1".</div>
+      </figure>
+    </section>
+
+    <!-- ============================ CHECK 3 ============================ -->
+    <section class="check" id="usability">
+      <h2><span class="num">3.</span>Usability feature from Problem 9: "My size" filter + sort</h2>
+
+      <figure>
+        <a href="app_check_images/usability_size_filter.png" target="_blank"><img src="app_check_images/usability_size_filter.png" alt="Shop page with My size set to XL and sort Price low to high, showing 77 of 102 items in stock in XL and per-card XL stock labels" /></a>
+        <figcaption>
+          <strong>Proves:</strong> choosing <strong>My size = XL</strong> hides everything sold out in XL ("77 of 102 items in stock
+          in XL"), and each card says "XL in stock" or "Only 2 left in XL". <strong>Sort = Price: low to high</strong> puts
+          the $32 tees first, so a shopper sees only what they can actually buy, in the order they want.
+        </figcaption>
+        <div class="evidence">DB check: 25 products have <code>XL = 0</code>, so 102 − 25 = <strong>77</strong> ✔. The prices on the page were
+          confirmed ascending, and after a page reload the "XL" choice was still selected (saved in <code>localStorage</code>).</div>
+      </figure>
+    </section>
+  </main>
+
+  <footer>
+    Screenshots: <code>output/app_check_images/</code> (inventory.png, inventory_stock_table.png, search_results_chat.png,
+    search_results_cards.png, search_results_detail.png, usability_size_filter.png). All links above are relative paths.
+  </footer>
+</body>
+</html>
