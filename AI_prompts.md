@@ -128,3 +128,14 @@ now lets work on problem 12: audit trail, safety, finish harness. keep an append
 ### Follow-up prompts
 
 None yet.
+
+## Problem 13: Push to GitHub and submit the URL
+
+### Original prompt
+
+now lets work on problem 13: push to github and submit the url. put the code in a folder named hm4 and push it to a public github repository. give me a repo url that i can post on canvas. dont put real .env, campus_customs.db, or product images in the github repo. use .gitignore. include .env.example with placeholders only. expceted file layout attched. the cut ut text says reload --port 8000.Local-only data pack (not in git) also attached. The agent itself is four files under backend/: prompts/prompt.md, agent.py, tools.py, and models.py. README.md should explain how to run the front end and back end after placing the data pack.
+
+### Follow-up prompts
+
+- Chose to install the GitHub CLI and sign in with a one-time device code, and to use the private GitHub noreply address as the public commit email.
+- Result: public repo https://github.com/dhritiswarup/hw4 (folder/repo named `hw4` to match the expected layout).
